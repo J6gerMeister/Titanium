@@ -710,8 +710,8 @@ local function makeColumnObj(sf, registry, openDD)
 			local function closeCP()
 				cpOpen = false
 				removeRGB(swatchRgbCb); swatchRgbCb = nil
-				swatchStroke.Color = C.borderBt
 				tw(pickerPanel, {Size=UDim2.new(1,0,0,0)}, MED):Play()
+				tw(swatchStroke, {Color=C.borderBt}):Play()
 				tw(container, {Size = UDim2.new(1, -12, 0, containerH())}, MED):Play()
 				task.delay(0.24, function() pickerPanel.Visible = false end)
 				local delta = -(PICKER_H + 2)
@@ -725,6 +725,7 @@ local function makeColumnObj(sf, registry, openDD)
 				pickerPanel.Visible = true
 				swatchRgbCb = bindRGB(swatchStroke, "Color")
 				tw(pickerPanel, {Size=UDim2.new(1,0,0,PICKER_H)}, MED):Play()
+				tw(swatchStroke, {Color=rgbColor}):Play()
 				tw(container, {Size = UDim2.new(1, -12, 0, containerH())}, MED):Play()
 				local delta = PICKER_H + 2
 				shiftBelow(posY, delta, true)
