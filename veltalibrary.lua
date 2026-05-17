@@ -211,60 +211,56 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 
 	-- "V" label — narrow, left side inside PAD
 	local brLbl = Instance.new("TextLabel")
-	brLbl.Text = "V"; brLbl.Font = FONT_REG; brLbl.TextSize = 9; brLbl.TextColor3 = C.textDim
+	brLbl.Text = "Brightness"; brLbl.Font = FONT_REG; brLbl.TextSize = 9; brLbl.TextColor3 = C.textDim
 	brLbl.BackgroundTransparency = 1
-	brLbl.Size = UDim2.new(0, 10, 0, SL_H); brLbl.Position = UDim2.new(0, PAD, 0, brY)
+	brLbl.Size = UDim2.new(0, 74, 0, SL_H); brLbl.Position = UDim2.new(0, PAD, 0, brY)
 	brLbl.TextXAlignment = Enum.TextXAlignment.Left; brLbl.ZIndex = 9; brLbl.Parent = panel
 
-	-- value label — right side
 	local brVal = Instance.new("TextLabel")
 	brVal.Text = math.floor(curV*100).."%"; brVal.Font = FONT_REG; brVal.TextSize = 9; brVal.TextColor3 = C.textDim
 	brVal.BackgroundTransparency = 1
-	brVal.Size = UDim2.new(0, 30, 0, SL_H); brVal.Position = UDim2.new(1, -PAD-30, 0, brY)
+	brVal.Size = UDim2.new(0, 36, 0, SL_H); brVal.Position = UDim2.new(1, -PAD-36, 0, brY)
 	brVal.TextXAlignment = Enum.TextXAlignment.Right; brVal.ZIndex = 9; brVal.Parent = panel
 
-	-- track — between label (PAD+12) and value (PAD+32 from right)
-	local brTrack = Instance.new("Frame")
-	brTrack.Size     = UDim2.new(1, -(PAD+14 + PAD+32), 0, 4)
-	brTrack.Position = UDim2.new(0, PAD+14, 0, brMid-2)
+	local TRACK_W = 160
+	local brTrack = Instance.new("Frame")	
+	brTrack.Size = UDim2.new(0, TRACK_W, 0, 4)
+	brTrack.Position = UDim2.new(1, -PAD - TRACK_W - 40, 0, brMid-2)
 	brTrack.BackgroundColor3 = Color3.fromRGB(0,0,0); brTrack.BorderSizePixel = 0
 	brTrack.ZIndex = 9; brTrack.Parent = panel; corner(brTrack, 2)
 	do local g = Instance.new("UIGradient"); g.Color = ColorSequence.new(Color3.fromRGB(0,0,0), Color3.fromRGB(255,255,255)); g.Rotation = 0; g.Parent = brTrack end
 
 	local brKnob = Instance.new("TextButton")
-	brKnob.Size = UDim2.new(0,9,0,9); brKnob.Position = UDim2.new(curV,-4,0,brMid-4)
+	brKnob.Size = UDim2.new(0,10,0,10); brKnob.Position = UDim2.new(curV, -5, 0.5, -5)
 	brKnob.BackgroundColor3 = Color3.fromRGB(230,230,230); brKnob.BorderSizePixel = 0
-	brKnob.Text = ""; brKnob.AutoButtonColor = false; brKnob.ZIndex = 11; brKnob.Parent = panel
+	brKnob.Text = ""; brKnob.AutoButtonColor = false; brKnob.ZIndex = 11; brKnob.Parent = brTrack
 	corner(brKnob, 5); stroke(brKnob, Color3.fromRGB(80,80,80), 1, 0)
 
 	-- ── Opacity slider (A) ───────────────────────────────
-	local opY   = brY + SL_H + PAD
-	local opMid = opY + SL_H/2
-
 	local opLbl = Instance.new("TextLabel")
-	opLbl.Text = "A"; opLbl.Font = FONT_REG; opLbl.TextSize = 9; opLbl.TextColor3 = C.textDim
+	opLbl.Text = "Opacity"; opLbl.Font = FONT_REG; opLbl.TextSize = 9; opLbl.TextColor3 = C.textDim
 	opLbl.BackgroundTransparency = 1
-	opLbl.Size = UDim2.new(0,10,0,SL_H); opLbl.Position = UDim2.new(0,PAD,0,opY)
+	opLbl.Size = UDim2.new(0, 74, 0, SL_H); opLbl.Position = UDim2.new(0, PAD, 0, opY)
 	opLbl.TextXAlignment = Enum.TextXAlignment.Left; opLbl.ZIndex = 9; opLbl.Parent = panel
 
 	local opVal = Instance.new("TextLabel")
 	opVal.Text = math.floor(curOp*100).."%"; opVal.Font = FONT_REG; opVal.TextSize = 9; opVal.TextColor3 = C.textDim
 	opVal.BackgroundTransparency = 1
-	opVal.Size = UDim2.new(0,30,0,SL_H); opVal.Position = UDim2.new(1,-PAD-30,0,opY)
+	opVal.Size = UDim2.new(0, 36, 0, SL_H); opVal.Position = UDim2.new(1, -PAD-36, 0, opY)
 	opVal.TextXAlignment = Enum.TextXAlignment.Right; opVal.ZIndex = 9; opVal.Parent = panel
 
 	local opTrack = Instance.new("Frame")
-	opTrack.Size     = UDim2.new(1, -(PAD+14 + PAD+32), 0, 4)
-	opTrack.Position = UDim2.new(0, PAD+14, 0, opMid-2)
+	opTrack.Size = UDim2.new(0, TRACK_W, 0, 4)
+	opTrack.Position = UDim2.new(1, -PAD - TRACK_W - 40, 0, opMid-2)
 	opTrack.BackgroundColor3 = Color3.fromRGB(0,0,0); opTrack.BorderSizePixel = 0
 	opTrack.ZIndex = 9; opTrack.Parent = panel; corner(opTrack, 2)
 	local opGrad
 	do local g = Instance.new("UIGradient"); g.Color = ColorSequence.new(Color3.fromRGB(60,60,60), defColor); g.Rotation = 0; g.Parent = opTrack; opGrad = g end
 
 	local opKnob = Instance.new("TextButton")
-	opKnob.Size = UDim2.new(0,9,0,9); opKnob.Position = UDim2.new(curOp,-4,0,opMid-4)
+	opKnob.Size = UDim2.new(0,10,0,10); opKnob.Position = UDim2.new(curOp, -5, 0.5, -5)
 	opKnob.BackgroundColor3 = Color3.fromRGB(230,230,230); opKnob.BorderSizePixel = 0
-	opKnob.Text = ""; opKnob.AutoButtonColor = false; opKnob.ZIndex = 11; opKnob.Parent = panel
+	opKnob.Text = ""; opKnob.AutoButtonColor = false; opKnob.ZIndex = 11; opKnob.Parent = opTrack
 	corner(opKnob, 5); stroke(opKnob, Color3.fromRGB(80,80,80), 1, 0)
 
 	-- ── state helpers ────────────────────────────────────
