@@ -616,9 +616,9 @@ local function makeColumnObj(sf, registry, openDD)
 			tw(listFrame, {Size=UDim2.new(btnW,0,0,0)}, MED):Play()
 			tw(btn, {BackgroundColor3=C.dropBg}):Play()
 			tw(btnStroke, {Color=C.border}):Play()
+			tw(container, {Size = UDim2.new(1, -12, 0, containerH())}, MED):Play()
 			task.delay(0.24, function() listFrame.Visible = false end)
 			local delta = -LIST_H
-			applyContainerSize()
 			shiftBelow(posY, delta)
 			updatePickerPos()
 		end
@@ -632,8 +632,8 @@ local function makeColumnObj(sf, registry, openDD)
 			tw(listFrame, {Size=UDim2.new(btnW,0,0,LIST_H)}, MED):Play()
 			tw(btn, {BackgroundColor3=Color3.fromRGB(22,22,22)}):Play()
 			tw(btnStroke, {Color=C.borderBt}):Play()
+			tw(container, {Size = UDim2.new(1, -12, 0, containerH())}, MED):Play()
 			local delta = LIST_H
-			applyContainerSize()
 			shiftBelow(posY, delta)
 			updatePickerPos()  -- slide picker panel down with list
 		end
@@ -706,9 +706,9 @@ local function makeColumnObj(sf, registry, openDD)
 				removeRGB(swatchRgbCb); swatchRgbCb = nil
 				swatchStroke.Color = C.borderBt
 				tw(pickerPanel, {Size=UDim2.new(1,0,0,0)}, MED):Play()
+				tw(container, {Size = UDim2.new(1, -12, 0, containerH())}, MED):Play()
 				task.delay(0.24, function() pickerPanel.Visible = false end)
 				local delta = -(PICKER_H + 2)
-				applyContainerSize()
 				shiftBelow(posY, delta)
 			end
 
@@ -719,8 +719,8 @@ local function makeColumnObj(sf, registry, openDD)
 				pickerPanel.Visible = true
 				swatchRgbCb = bindRGB(swatchStroke, "Color")
 				tw(pickerPanel, {Size=UDim2.new(1,0,0,PICKER_H)}, MED):Play()
+				tw(container, {Size = UDim2.new(1, -12, 0, containerH())}, MED):Play()
 				local delta = PICKER_H + 2
-				applyContainerSize()
 				shiftBelow(posY, delta)
 			end
 
