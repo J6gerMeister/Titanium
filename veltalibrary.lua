@@ -1111,6 +1111,7 @@ function VeltaLib.new(config)
 	confirmBtn.MouseLeave:Connect(function() tw(confirmBtn,{BackgroundColor3=Color3.fromRGB(28,8,8)}):Play() end)
 
 	local function openDialog()
+		if openDD.fn then openDD.fn(); openDD.fn = nil end
 		bOver.Visible = true; tw(bOver,{BackgroundTransparency=0.5},MED):Play()
 		task.delay(0.04,  function() tw(dTitle, {TextTransparency=0},MED):Play() end)
 		task.delay(0.10,  function() tw(dMsg,   {TextTransparency=0},MED):Play() end)
