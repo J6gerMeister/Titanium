@@ -272,10 +272,10 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 		svBox.BackgroundColor3 = Color3.fromHSV(curH, 1, 1)
 		svCursor.Position      = UDim2.new(curS, -4, 1-curV, -4)
 		hueCursor.Position     = UDim2.new(curH, -1, 0, -2)
-		brKnob.Position        = UDim2.new(curV, -5, 0.5, -5)
+		brKnob.Position        = UDim2.new(curV, -4, 0, brMid-4)
 		brVal.Text             = math.floor(curV*100).."%"
 		opGrad.Color           = ColorSequence.new(Color3.fromRGB(60,60,60), c)
-		opKnob.Position        = UDim2.new(curOp, -5, 0.5, -5)
+		opKnob.Position        = UDim2.new(curOp, -4, 0, opMid-4)
 		opVal.Text             = math.floor(curOp*100).."%"
 		prevColor.BackgroundColor3 = c
 		prevColor.BackgroundTransparency = 1-curOp
