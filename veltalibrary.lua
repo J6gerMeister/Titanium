@@ -1,4 +1,4 @@
--- VeltaLibrary.lua  (RGB Edition)
+-- VeltaLibrary.lua
 -- Reusable GUI library for Velta-style mod menu UIs.
 -- Educational / cosmetic demonstration only — no functional game hooks.
 
@@ -432,6 +432,7 @@ local function makeColumnObj(sf, registry, openDD)
 
 		-- Option rows
 		local optButtons = {}
+		local optionRgbCallbacks = {}  -- Track RGB callbacks by option index
 		for i, optText in ipairs(options) do
 			local optBtn = Instance.new("TextButton")
 			optBtn.Size                   = UDim2.new(1,0,0,ITEM_H)
@@ -468,9 +469,9 @@ local function makeColumnObj(sf, registry, openDD)
 			optLbl.ZIndex                 = 22
 			optLbl.Parent                 = optBtn
 			-- RGB on the selected label
-			local optLblRgb
+			optionRgbCallbacks[i] = nil  -- Initialize as nil
 			if i == selIdx then
-				optLblRgb = bindRGB(optLbl, "TextColor3")
+				optionRgbCallbacks[i] = bindRGB(optLbl, "TextColor3")
 			end
 
 			if i < COUNT then
@@ -499,6 +500,17 @@ local function makeColumnObj(sf, registry, openDD)
 			end)
 
 			optBtn.MouseButton1Click:Connect(function()
+				-- Remove RGB callback from previously selected option
+				if optionRgbCallbacks[selIdx] then
+					for i, cb in ipairs(RGBCallbacks) do
+						if cb == optionRgbCallbacks[selIdx] then
+							table.remove(RGBCallbacks, i)
+							break
+						end
+					end
+					optionRgbCallbacks[selIdx] = nil
+				end
+
 				-- reset all rows
 				for _, child in ipairs(listFrame:GetChildren()) do
 					if child:IsA("TextButton") then
@@ -517,7 +529,7 @@ local function makeColumnObj(sf, registry, openDD)
 				selLbl.Text       = optText
 				-- apply RGB to new selection
 				optLbl.TextColor3 = rgbColor
-				bindRGB(optLbl, "TextColor3")
+				optionRgbCallbacks[i] = bindRGB(optLbl, "TextColor3")
 				selBar.Visible    = true
 				bindRGB(selBar, "BackgroundColor3")
 				closeDD()
