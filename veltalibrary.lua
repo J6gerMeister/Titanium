@@ -200,18 +200,12 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 	prevColor.BorderSizePixel = 0; prevColor.ZIndex = 10; prevColor.Parent = prevFrame
 	corner(prevColor, 2)
 
-	-- ── Brightness slider (V) ────────────────────────────
-	-- Layout (each row SL_H tall):
-	--   "V"  ← short label left-aligned
-	--   track fills the middle
-	--   "100%" right-aligned
-	-- All elements share the same Y band.
 	local brY   = svY + SV_H + PAD
 	local brMid = brY + SL_H/2
 
 	-- "V" label — narrow, left side inside PAD
 	local brLbl = Instance.new("TextLabel")
-	brLbl.Text = "V"; brLbl.Font = FONT_REG; brLbl.TextSize = 9; brLbl.TextColor3 = C.textDim
+	brLbl.Text = "Brightness"; brLbl.Font = FONT_REG; brLbl.TextSize = 9; brLbl.TextColor3 = C.textDim
 	brLbl.BackgroundTransparency = 1
 	brLbl.Size = UDim2.new(0, 10, 0, SL_H); brLbl.Position = UDim2.new(0, PAD, 0, brY)
 	brLbl.TextXAlignment = Enum.TextXAlignment.Left; brLbl.ZIndex = 9; brLbl.Parent = panel
@@ -242,7 +236,7 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 	local opMid = opY + SL_H/2
 
 	local opLbl = Instance.new("TextLabel")
-	opLbl.Text = "A"; opLbl.Font = FONT_REG; opLbl.TextSize = 9; opLbl.TextColor3 = C.textDim
+	opLbl.Text = "Opacity"; opLbl.Font = FONT_REG; opLbl.TextSize = 9; opLbl.TextColor3 = C.textDim
 	opLbl.BackgroundTransparency = 1
 	opLbl.Size = UDim2.new(0,10,0,SL_H); opLbl.Position = UDim2.new(0,PAD,0,opY)
 	opLbl.TextXAlignment = Enum.TextXAlignment.Left; opLbl.ZIndex = 9; opLbl.Parent = panel
