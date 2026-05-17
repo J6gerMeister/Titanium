@@ -211,56 +211,60 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 
 	-- "V" label — narrow, left side inside PAD
 	local brLbl = Instance.new("TextLabel")
-	brLbl.Text = "Brightness"; brLbl.Font = FONT_REG; brLbl.TextSize = 9; brLbl.TextColor3 = C.textDim
+	brLbl.Text = "V"; brLbl.Font = FONT_REG; brLbl.TextSize = 9; brLbl.TextColor3 = C.textDim
 	brLbl.BackgroundTransparency = 1
-	brLbl.Size = UDim2.new(0, 74, 0, SL_H); brLbl.Position = UDim2.new(0, PAD, 0, brY)
+	brLbl.Size = UDim2.new(0, 10, 0, SL_H); brLbl.Position = UDim2.new(0, PAD, 0, brY)
 	brLbl.TextXAlignment = Enum.TextXAlignment.Left; brLbl.ZIndex = 9; brLbl.Parent = panel
 
+	-- value label — right side
 	local brVal = Instance.new("TextLabel")
 	brVal.Text = math.floor(curV*100).."%"; brVal.Font = FONT_REG; brVal.TextSize = 9; brVal.TextColor3 = C.textDim
 	brVal.BackgroundTransparency = 1
-	brVal.Size = UDim2.new(0, 36, 0, SL_H); brVal.Position = UDim2.new(1, -PAD-36, 0, brY)
+	brVal.Size = UDim2.new(0, 30, 0, SL_H); brVal.Position = UDim2.new(1, -PAD-30, 0, brY)
 	brVal.TextXAlignment = Enum.TextXAlignment.Right; brVal.ZIndex = 9; brVal.Parent = panel
 
-	local TRACK_W = 160
-	local brTrack = Instance.new("Frame")	
-	brTrack.Size = UDim2.new(0, TRACK_W, 0, 4)
-	brTrack.Position = UDim2.new(1, -PAD - TRACK_W - 40, 0, brMid-2)
+	-- track — between label (PAD+12) and value (PAD+32 from right)
+	local brTrack = Instance.new("Frame")
+	brTrack.Size     = UDim2.new(1, -(PAD+14 + PAD+32), 0, 4)
+	brTrack.Position = UDim2.new(0, PAD+14, 0, brMid-2)
 	brTrack.BackgroundColor3 = Color3.fromRGB(0,0,0); brTrack.BorderSizePixel = 0
 	brTrack.ZIndex = 9; brTrack.Parent = panel; corner(brTrack, 2)
 	do local g = Instance.new("UIGradient"); g.Color = ColorSequence.new(Color3.fromRGB(0,0,0), Color3.fromRGB(255,255,255)); g.Rotation = 0; g.Parent = brTrack end
 
 	local brKnob = Instance.new("TextButton")
-	brKnob.Size = UDim2.new(0,10,0,10); brKnob.Position = UDim2.new(curV, -5, 0.5, -5)
+	brKnob.Size = UDim2.new(0,9,0,9); brKnob.Position = UDim2.new(curV,-4,0,brMid-4)
 	brKnob.BackgroundColor3 = Color3.fromRGB(230,230,230); brKnob.BorderSizePixel = 0
-	brKnob.Text = ""; brKnob.AutoButtonColor = false; brKnob.ZIndex = 11; brKnob.Parent = brTrack
+	brKnob.Text = ""; brKnob.AutoButtonColor = false; brKnob.ZIndex = 11; brKnob.Parent = panel
 	corner(brKnob, 5); stroke(brKnob, Color3.fromRGB(80,80,80), 1, 0)
 
 	-- ── Opacity slider (A) ───────────────────────────────
+	local opY   = brY + SL_H + PAD
+	local opMid = opY + SL_H/2
+
 	local opLbl = Instance.new("TextLabel")
-	opLbl.Text = "Opacity"; opLbl.Font = FONT_REG; opLbl.TextSize = 9; opLbl.TextColor3 = C.textDim
+	opLbl.Text = "A"; opLbl.Font = FONT_REG; opLbl.TextSize = 9; opLbl.TextColor3 = C.textDim
 	opLbl.BackgroundTransparency = 1
-	opLbl.Size = UDim2.new(0, 74, 0, SL_H); opLbl.Position = UDim2.new(0, PAD, 0, opY)
+	opLbl.Size = UDim2.new(0,10,0,SL_H); opLbl.Position = UDim2.new(0,PAD,0,opY)
 	opLbl.TextXAlignment = Enum.TextXAlignment.Left; opLbl.ZIndex = 9; opLbl.Parent = panel
 
 	local opVal = Instance.new("TextLabel")
 	opVal.Text = math.floor(curOp*100).."%"; opVal.Font = FONT_REG; opVal.TextSize = 9; opVal.TextColor3 = C.textDim
 	opVal.BackgroundTransparency = 1
-	opVal.Size = UDim2.new(0, 36, 0, SL_H); opVal.Position = UDim2.new(1, -PAD-36, 0, opY)
+	opVal.Size = UDim2.new(0,30,0,SL_H); opVal.Position = UDim2.new(1,-PAD-30,0,opY)
 	opVal.TextXAlignment = Enum.TextXAlignment.Right; opVal.ZIndex = 9; opVal.Parent = panel
 
 	local opTrack = Instance.new("Frame")
-	opTrack.Size = UDim2.new(0, TRACK_W, 0, 4)
-	opTrack.Position = UDim2.new(1, -PAD - TRACK_W - 40, 0, opMid-2)
+	opTrack.Size     = UDim2.new(1, -(PAD+14 + PAD+32), 0, 4)
+	opTrack.Position = UDim2.new(0, PAD+14, 0, opMid-2)
 	opTrack.BackgroundColor3 = Color3.fromRGB(0,0,0); opTrack.BorderSizePixel = 0
 	opTrack.ZIndex = 9; opTrack.Parent = panel; corner(opTrack, 2)
 	local opGrad
 	do local g = Instance.new("UIGradient"); g.Color = ColorSequence.new(Color3.fromRGB(60,60,60), defColor); g.Rotation = 0; g.Parent = opTrack; opGrad = g end
 
 	local opKnob = Instance.new("TextButton")
-	opKnob.Size = UDim2.new(0,10,0,10); opKnob.Position = UDim2.new(curOp, -5, 0.5, -5)
+	opKnob.Size = UDim2.new(0,9,0,9); opKnob.Position = UDim2.new(curOp,-4,0,opMid-4)
 	opKnob.BackgroundColor3 = Color3.fromRGB(230,230,230); opKnob.BorderSizePixel = 0
-	opKnob.Text = ""; opKnob.AutoButtonColor = false; opKnob.ZIndex = 11; opKnob.Parent = opTrack
+	opKnob.Text = ""; opKnob.AutoButtonColor = false; opKnob.ZIndex = 11; opKnob.Parent = panel
 	corner(opKnob, 5); stroke(opKnob, Color3.fromRGB(80,80,80), 1, 0)
 
 	-- ── state helpers ────────────────────────────────────
@@ -349,20 +353,15 @@ local function makeColumnObj(sf, registry, openDD)
 	-- Shift everything whose baseY is strictly ABOVE afterY by delta pixels.
 	-- (afterY is the posY of the item that expanded)
 	local function shiftBelow(afterY, delta)
-		-- animate position changes instead of snapping so rollback/expand looks smooth
 		for _, e in ipairs(registry[sf]) do
 			if e.baseY > afterY then
 				e.extra = e.extra + delta
-				local newY = e.baseY + e.extra
-				local newPos = UDim2.new(
+				e.frame.Position = UDim2.new(
 					e.frame.Position.X.Scale,
 					e.frame.Position.X.Offset,
 					0,
-					newY
+					e.baseY + e.extra
 				)
-				-- choose tween speed: collapsing (delta<0) should be snappier
-				local info = (delta < 0) and FAST or MED
-				tw(e.frame, {Position = newPos}, info):Play()
 			end
 		end
 		-- grow canvas
@@ -519,14 +518,12 @@ local function makeColumnObj(sf, registry, openDD)
 			swatchBtn = Instance.new("TextButton")
 			swatchBtn.Size                = UDim2.new(0, 14, 0, 14)
 			-- anchored just right of where the label ends
-			-- pin swatch to a fixed pixel Y so it doesn't shift when container height changes
-			swatchBtn.Position            = UDim2.new(0.44, -SWATCH_W, 0, 4)
+			swatchBtn.Position            = UDim2.new(0.44, -SWATCH_W, 0.5, -7)
 			swatchBtn.BackgroundColor3    = defColor
 			swatchBtn.BorderSizePixel     = 0
 			swatchBtn.Text                = ""
 			swatchBtn.AutoButtonColor     = false
-			-- keep the swatch above the picker/list so it never gets occluded
-			swatchBtn.ZIndex              = 60
+			swatchBtn.ZIndex              = 6
 			swatchBtn.Parent              = container
 			corner(swatchBtn, 2)
 			swatchStroke = stroke(swatchBtn, C.borderBt, 1.5, 0)
@@ -706,9 +703,8 @@ local function makeColumnObj(sf, registry, openDD)
 				cpOpen = false
 				removeRGB(swatchRgbCb); swatchRgbCb = nil
 				swatchStroke.Color = C.borderBt
-				-- use a faster close tween and shorter hide delay to match other UI elements
-				tw(pickerPanel, {Size=UDim2.new(1,0,0,0)}, FAST):Play()
-				task.delay(0.12, function() pickerPanel.Visible = false end)
+				tw(pickerPanel, {Size=UDim2.new(1,0,0,0)}, MED):Play()
+				task.delay(0.24, function() pickerPanel.Visible = false end)
 				local delta = -(PICKER_H + 2)
 				applyContainerSize()
 				shiftBelow(posY, delta)
@@ -720,7 +716,6 @@ local function makeColumnObj(sf, registry, openDD)
 				pickerPanel.Size    = UDim2.new(1, 0, 0, 0)
 				pickerPanel.Visible = true
 				swatchRgbCb = bindRGB(swatchStroke, "Color")
-				-- open can remain medium, but ensure timing matches close behavior
 				tw(pickerPanel, {Size=UDim2.new(1,0,0,PICKER_H)}, MED):Play()
 				local delta = PICKER_H + 2
 				applyContainerSize()
