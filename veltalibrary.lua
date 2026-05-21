@@ -179,148 +179,288 @@ local function newElementObj(defaultValue, callback)
 end
 
 -- ============================================================
---  COLOR PICKER  (grayscale brightness + opacity)
+--  COLOR PICKER  (Full HSV spectrum with RGB/Hex inputs)
 -- ============================================================
-local PICKER_PAD = 5
-local PICKER_SV  = 58
-local PICKER_SL  = 18
-local PICKER_H   = PICKER_PAD + PICKER_SV + PICKER_PAD + PICKER_SL + PICKER_PAD + PICKER_SL + PICKER_PAD
+local PICKER_H = 280
 
 local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 	defColor   = defColor   or Color3.fromRGB(200, 200, 200)
 	defOpacity = defOpacity or 1.0
 
-	local _, _, curV = Color3.toHSV(defColor)
+	local curH, curS, curV = Color3.toHSV(defColor)
 	local curOp = math.clamp(defOpacity, 0, 1)
 
-	local PAD    = PICKER_PAD
-	local SV_H   = PICKER_SV
-	local SL_H   = PICKER_SL
-	local GAP    = 4
-	local PREV_W = 0.28
-
 	local panel = Instance.new("Frame")
-	panel.Size             = UDim2.new(1, 0, 0, PICKER_H)
+	panel.Size = UDim2.new(1, 0, 0, PICKER_H)
 	panel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-	panel.BorderSizePixel  = 0; panel.ZIndex = 8
+	panel.BorderSizePixel = 0; panel.ZIndex = 8
 	panel.ClipsDescendants = false; panel.Visible = false
 	panel.Parent = parent
 	corner(panel, 3); stroke(panel, C.borderHard, 1, 0.1)
 
-	local svY   = PAD
+	-- SV Picker (Saturation-Value 2D selector)
 	local svBox = Instance.new("Frame")
-	svBox.Size             = UDim2.new(1 - PREV_W, -PAD - GAP/2, 0, SV_H)
-	svBox.Position         = UDim2.new(0, PAD, 0, svY)
-	svBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	svBox.BorderSizePixel  = 0; svBox.ZIndex = 9
-	svBox.ClipsDescendants = true; svBox.Parent = panel; corner(svBox, 3)
-	gradient(svBox, Color3.fromRGB(255,255,255), Color3.fromRGB(0,0,0), 0)
-
+	svBox.Size = UDim2.new(0, 180, 0, 160)
+	svBox.Position = UDim2.new(0, 20, 0, 15)
+	svBox.BackgroundColor3 = Color3.fromHSV(curH, 1, 1)
+	svBox.BorderSizePixel = 0; svBox.ZIndex = 9
+	svBox.ClipsDescendants = true; svBox.Parent = panel; corner(svBox, 4)
+	
+	local svGrad = Instance.new("UIGradient")
+	svGrad.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+	})
+	svGrad.Rotation = 90; svGrad.Parent = svBox
+	
 	local svCursor = Instance.new("Frame")
-	svCursor.Size = UDim2.new(0,10,1,0)
-	svCursor.Position = UDim2.new(1-curV,-5,0,0)
-	svCursor.BackgroundColor3 = Color3.fromRGB(0,0,0)
-	svCursor.BackgroundTransparency = 0.3
-	svCursor.BorderSizePixel = 0; svCursor.ZIndex = 12; svCursor.Parent = svBox
-	corner(svCursor, 2); stroke(svCursor, Color3.fromRGB(200,200,200), 1, 0)
+	svCursor.Size = UDim2.new(0, 12, 0, 12)
+	svCursor.Position = UDim2.new(curS, -6, 1-curV, -6)
+	svCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	svCursor.BorderSizePixel = 0; svCursor.ZIndex = 12; svCursor.Parent = svBox; corner(svCursor, 6)
+	stroke(svCursor, Color3.fromRGB(50, 50, 50), 2, 0)
 
-	local prevFrame = Instance.new("Frame")
-	prevFrame.Size     = UDim2.new(PREV_W, -PAD-GAP/2, 0, SV_H)
-	prevFrame.Position = UDim2.new(1-PREV_W, GAP/2, 0, svY)
-	prevFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
-	prevFrame.BorderSizePixel = 0; prevFrame.ZIndex = 9; prevFrame.Parent = panel; corner(prevFrame, 3)
-	gradientN(prevFrame,{{0,Color3.fromRGB(55,55,55)},{0.5,Color3.fromRGB(35,35,35)},{1,Color3.fromRGB(55,55,55)}},45)
+	-- Hue Slider
+	local hueBar = Instance.new("Frame")
+	hueBar.Size = UDim2.new(0, 20, 0, 160)
+	hueBar.Position = UDim2.new(0, 205, 0, 15)
+	hueBar.BorderSizePixel = 0; hueBar.ZIndex = 9; hueBar.Parent = panel; corner(hueBar, 4)
+	
+	local hueBkgd = Instance.new("Frame")
+	hueBkgd.Size = UDim2.new(1, 0, 1, 0)
+	hueBkgd.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	hueBkgd.BorderSizePixel = 0; hueBkgd.ZIndex = 10; hueBkgd.Parent = hueBar
+	
+	local hueGrad = Instance.new("UIGradient")
+	hueGrad.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 1, 1)),
+		ColorSequenceKeypoint.new(1/6, Color3.fromHSV(1/6, 1, 1)),
+		ColorSequenceKeypoint.new(2/6, Color3.fromHSV(2/6, 1, 1)),
+		ColorSequenceKeypoint.new(3/6, Color3.fromHSV(3/6, 1, 1)),
+		ColorSequenceKeypoint.new(4/6, Color3.fromHSV(4/6, 1, 1)),
+		ColorSequenceKeypoint.new(5/6, Color3.fromHSV(5/6, 1, 1)),
+		ColorSequenceKeypoint.new(1, Color3.fromHSV(1, 1, 1))
+	})
+	hueGrad.Rotation = 90; hueGrad.Parent = hueBkgd
+	
+	local hueCursor = Instance.new("Frame")
+	hueCursor.Size = UDim2.new(1, 0, 0, 6)
+	hueCursor.Position = UDim2.new(0, 0, curH, -3)
+	hueCursor.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+	hueCursor.BorderSizePixel = 0; hueCursor.ZIndex = 13; hueCursor.Parent = hueBar
 
-	local prevColor = Instance.new("Frame")
-	prevColor.Size = UDim2.fromScale(1,1)
-	prevColor.BackgroundColor3 = defColor
-	prevColor.BackgroundTransparency = 1-defOpacity
-	prevColor.BorderSizePixel = 0; prevColor.ZIndex = 10; prevColor.Parent = prevFrame; corner(prevColor, 3)
-
-	local brY   = svY + SV_H + PAD
-	local brMid = brY + SL_H / 2
-
-	local brLbl = Instance.new("TextLabel")
-	brLbl.Text="Value"; brLbl.Font=FONT_REG; brLbl.TextSize=9; brLbl.TextColor3=C.textDim
-	brLbl.BackgroundTransparency=1; brLbl.Size=UDim2.new(0,34,0,SL_H); brLbl.Position=UDim2.new(0,PAD,0,brY)
-	brLbl.TextXAlignment=Enum.TextXAlignment.Left; brLbl.ZIndex=9; brLbl.Parent=panel
-
-	local brVal = Instance.new("TextLabel")
-	brVal.Text=math.floor(curV*100).."%"; brVal.Font=FONT_REG; brVal.TextSize=9; brVal.TextColor3=C.textSub
-	brVal.BackgroundTransparency=1; brVal.Size=UDim2.new(0,32,0,SL_H); brVal.Position=UDim2.new(1,-PAD-32,0,brY)
-	brVal.TextXAlignment=Enum.TextXAlignment.Right; brVal.ZIndex=9; brVal.Parent=panel
-
-	local brTrack = Instance.new("Frame")
-	brTrack.Size=UDim2.new(1,-(PAD+38+PAD+36),0,4); brTrack.Position=UDim2.new(0,PAD+38,0,brMid-2)
-	brTrack.BackgroundColor3=Color3.fromRGB(8,8,8); brTrack.BorderSizePixel=0; brTrack.ZIndex=9; brTrack.Parent=panel; corner(brTrack,2)
-	gradient(brTrack, Color3.fromRGB(0,0,0), Color3.fromRGB(255,255,255), 0)
-
-	local brKnob = Instance.new("TextButton")
-	brKnob.Size=UDim2.new(0,10,0,10); brKnob.Position=UDim2.new(curV,-5,0,brMid-5)
-	brKnob.BackgroundColor3=C.knob; brKnob.BorderSizePixel=0; brKnob.Text=""; brKnob.AutoButtonColor=false; brKnob.ZIndex=11; brKnob.Parent=panel
-	corner(brKnob,5); stroke(brKnob,Color3.fromRGB(60,60,60),1,0)
-
-	local opY   = brY + SL_H + PAD
-	local opMid = opY + SL_H / 2
-
-	local opLbl = Instance.new("TextLabel")
-	opLbl.Text="Opacity"; opLbl.Font=FONT_REG; opLbl.TextSize=9; opLbl.TextColor3=C.textDim
-	opLbl.BackgroundTransparency=1; opLbl.Size=UDim2.new(0,34,0,SL_H); opLbl.Position=UDim2.new(0,PAD,0,opY)
-	opLbl.TextXAlignment=Enum.TextXAlignment.Left; opLbl.ZIndex=9; opLbl.Parent=panel
-
-	local opVal = Instance.new("TextLabel")
-	opVal.Text=math.floor(curOp*100).."%"; opVal.Font=FONT_REG; opVal.TextSize=9; opVal.TextColor3=C.textSub
-	opVal.BackgroundTransparency=1; opVal.Size=UDim2.new(0,32,0,SL_H); opVal.Position=UDim2.new(1,-PAD-32,0,opY)
-	opVal.TextXAlignment=Enum.TextXAlignment.Right; opVal.ZIndex=9; opVal.Parent=panel
-
+	-- Opacity Slider  
 	local opTrack = Instance.new("Frame")
-	opTrack.Size=UDim2.new(1,-(PAD+38+PAD+36),0,4); opTrack.Position=UDim2.new(0,PAD+38,0,opMid-2)
-	opTrack.BackgroundColor3=Color3.fromRGB(8,8,8); opTrack.BorderSizePixel=0; opTrack.ZIndex=9; opTrack.Parent=panel; corner(opTrack,2)
-	do
-		local g=Instance.new("UIGradient"); g.Color=ColorSequence.new(Color3.fromRGB(255,255,255),Color3.fromRGB(255,255,255))
-		g.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(1,0)}); g.Rotation=0; g.Parent=opTrack
-	end
+	opTrack.Size = UDim2.new(0, 20, 0, 160)
+	opTrack.Position = UDim2.new(0, 230, 0, 15)
+	opTrack.BorderSizePixel = 0; opTrack.ZIndex = 9; opTrack.Parent = panel; corner(opTrack, 4)
+	
+	local opBkgd = Instance.new("ImageLabel")
+	opBkgd.Image = "http://www.roblox.com/asset/?id=14204231522"
+	opBkgd.ImageTransparency = 0.45
+	opBkgd.ScaleType = Enum.ScaleType.Tile
+	opBkgd.TileSize = UDim2.fromOffset(10, 10)
+	opBkgd.Size = UDim2.new(1, 0, 1, 0)
+	opBkgd.BorderSizePixel = 0; opBkgd.ZIndex = 10; opBkgd.Parent = opTrack
+	
+	local opGrad = Instance.new("UIGradient")
+	opGrad.Color = ColorSequence.new(defColor, defColor)
+	opGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(1, 0)
+	})
+	opGrad.Rotation = 90; opGrad.Parent = opBkgd
+	
+	local opCursor = Instance.new("Frame")
+	opCursor.Size = UDim2.new(1, 0, 0, 6)
+	opCursor.Position = UDim2.new(0, 0, 1-curOp, -3)
+	opCursor.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+	opCursor.BorderSizePixel = 0; opCursor.ZIndex = 13; opCursor.Parent = opTrack
 
-	local opKnob = Instance.new("TextButton")
-	opKnob.Size=UDim2.new(0,10,0,10); opKnob.Position=UDim2.new(curOp,-5,0,opMid-5)
-	opKnob.BackgroundColor3=C.knob; opKnob.BorderSizePixel=0; opKnob.Text=""; opKnob.AutoButtonColor=false; opKnob.ZIndex=11; opKnob.Parent=panel
-	corner(opKnob,5); stroke(opKnob,Color3.fromRGB(60,60,60),1,0)
+	-- RGB Input Fields
+	local rgbY = 185
+	local hexInput = Instance.new("TextBox")
+	hexInput.Size = UDim2.new(0, 60, 0, 20)
+	hexInput.Position = UDim2.new(0, 20, 0, rgbY)
+	hexInput.BackgroundColor3 = C.bgRaised
+	hexInput.BorderSizePixel = 0; hexInput.TextSize = 11
+	hexInput.TextColor3 = C.textBright
+	hexInput.Font = FONT_REG; hexInput.ZIndex = 10; hexInput.Parent = panel; corner(hexInput, 2)
+	hexInput.PlaceholderText = "Hex"
+	hexInput.Text = Color3.fromHSV(curH, curS, curV):ToHex()
 
-	local function getColor()   return Color3.fromHSV(0,0,curV) end
+	local redInput = Instance.new("TextBox")
+	redInput.Size = UDim2.new(0, 50, 0, 20)
+	redInput.Position = UDim2.new(0, 85, 0, rgbY)
+	redInput.BackgroundColor3 = C.bgRaised
+	redInput.BorderSizePixel = 0; redInput.TextSize = 11
+	redInput.TextColor3 = C.textBright
+	redInput.Font = FONT_REG; redInput.ZIndex = 10; redInput.Parent = panel; corner(redInput, 2)
+	redInput.PlaceholderText = "R"
+
+	local greenInput = Instance.new("TextBox")
+	greenInput.Size = UDim2.new(0, 50, 0, 20)
+	greenInput.Position = UDim2.new(0, 140, 0, rgbY)
+	greenInput.BackgroundColor3 = C.bgRaised
+	greenInput.BorderSizePixel = 0; greenInput.TextSize = 11
+	greenInput.TextColor3 = C.textBright
+	greenInput.Font = FONT_REG; greenInput.ZIndex = 10; greenInput.Parent = panel; corner(greenInput, 2)
+	greenInput.PlaceholderText = "G"
+
+	local blueInput = Instance.new("TextBox")
+	blueInput.Size = UDim2.new(0, 50, 0, 20)
+	blueInput.Position = UDim2.new(0, 195, 0, rgbY)
+	blueInput.BackgroundColor3 = C.bgRaised
+	blueInput.BorderSizePixel = 0; blueInput.TextSize = 11
+	blueInput.TextColor3 = C.textBright
+	blueInput.Font = FONT_REG; blueInput.ZIndex = 10; blueInput.Parent = panel; corner(blueInput, 2)
+	blueInput.PlaceholderText = "B"
+
+	-- Color Preview
+	local previewBox = Instance.new("Frame")
+	previewBox.Size = UDim2.new(0, 60, 0, 30)
+	previewBox.Position = UDim2.new(0, 260, 0, 185)
+	previewBox.BackgroundColor3 = defColor
+	previewBox.BackgroundTransparency = 1-curOp
+	previewBox.BorderSizePixel = 0; previewBox.ZIndex = 10; previewBox.Parent = panel; corner(previewBox, 2)
+	stroke(previewBox, C.borderHard, 1, 0)
+
+	local function getColor()   return Color3.fromHSV(curH, curS, curV) end
 	local function getOpacity() return curOp end
-	local function refreshAll()
-		local c=getColor()
-		svCursor.Position=UDim2.new(1-curV,-5,0,0)
-		brKnob.Position=UDim2.new(curV,-5,0,brMid-5)
-		brVal.Text=math.floor(curV*100).."%"
-		opKnob.Position=UDim2.new(curOp,-5,0,opMid-5)
-		opVal.Text=math.floor(curOp*100).."%"
-		prevColor.BackgroundColor3=c; prevColor.BackgroundTransparency=1-curOp
-		if colorCb then colorCb(c,curOp) end
+	
+	local function updateInputs()
+		local c = getColor()
+		local r = math.floor(c.r * 255)
+		local g = math.floor(c.g * 255)
+		local b = math.floor(c.b * 255)
+		hexInput.Text = c:ToHex()
+		redInput.Text = tostring(r)
+		greenInput.Text = tostring(g)
+		blueInput.Text = tostring(b)
 	end
 
-	local svDrag,brDrag,opDrag=false,false,false
+	local function refreshAll()
+		local c = getColor()
+		svBox.BackgroundColor3 = Color3.fromHSV(curH, 1, 1)
+		svCursor.Position = UDim2.new(curS, -6, 1-curV, -6)
+		hueCursor.Position = UDim2.new(0, 0, curH, -3)
+		opGrad.Color = ColorSequence.new(c, c)
+		opCursor.Position = UDim2.new(0, 0, 1-curOp, -3)
+		previewBox.BackgroundColor3 = c
+		previewBox.BackgroundTransparency = 1-curOp
+		updateInputs()
+		if colorCb then colorCb(c, curOp) end
+	end
+
+	local svDrag, hueDrag, opDrag = false, false, false
+	
 	svBox.InputBegan:Connect(function(inp)
-		if inp.UserInputType==Enum.UserInputType.MouseButton1 then
-			svDrag=true; curV=1-math.clamp((inp.Position.X-svBox.AbsolutePosition.X)/svBox.AbsoluteSize.X,0,1); refreshAll()
+		if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+			svDrag = true
+			curS = math.clamp((inp.Position.X - svBox.AbsolutePosition.X) / svBox.AbsoluteSize.X, 0, 1)
+			curV = 1 - math.clamp((inp.Position.Y - svBox.AbsolutePosition.Y) / svBox.AbsoluteSize.Y, 0, 1)
+			refreshAll()
 		end
 	end)
-	brKnob.MouseButton1Down:Connect(function() brDrag=true end)
-	opKnob.MouseButton1Down:Connect(function() opDrag=true end)
-	UIS.InputChanged:Connect(function(inp)
-		if inp.UserInputType~=Enum.UserInputType.MouseMovement then return end
-		if svDrag then curV=1-math.clamp((inp.Position.X-svBox.AbsolutePosition.X)/svBox.AbsoluteSize.X,0,1); refreshAll() end
-		if brDrag then curV=math.clamp((inp.Position.X-brTrack.AbsolutePosition.X)/brTrack.AbsoluteSize.X,0,1); refreshAll() end
-		if opDrag then curOp=math.clamp((inp.Position.X-opTrack.AbsolutePosition.X)/opTrack.AbsoluteSize.X,0,1); refreshAll() end
+	
+	hueBar.InputBegan:Connect(function(inp)
+		if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+			hueDrag = true
+			curH = math.clamp((inp.Position.Y - hueBar.AbsolutePosition.Y) / hueBar.AbsoluteSize.Y, 0, 1)
+			refreshAll()
+		end
 	end)
+	
+	opTrack.InputBegan:Connect(function(inp)
+		if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+			opDrag = true
+			curOp = 1 - math.clamp((inp.Position.Y - opTrack.AbsolutePosition.Y) / opTrack.AbsoluteSize.Y, 0, 1)
+			refreshAll()
+		end
+	end)
+	
+	UIS.InputChanged:Connect(function(inp)
+		if inp.UserInputType ~= Enum.UserInputType.MouseMovement then return end
+		if svDrag then
+			curS = math.clamp((inp.Position.X - svBox.AbsolutePosition.X) / svBox.AbsoluteSize.X, 0, 1)
+			curV = 1 - math.clamp((inp.Position.Y - svBox.AbsolutePosition.Y) / svBox.AbsoluteSize.Y, 0, 1)
+			refreshAll()
+		end
+		if hueDrag then
+			curH = math.clamp((inp.Position.Y - hueBar.AbsolutePosition.Y) / hueBar.AbsoluteSize.Y, 0, 1)
+			refreshAll()
+		end
+		if opDrag then
+			curOp = 1 - math.clamp((inp.Position.Y - opTrack.AbsolutePosition.Y) / opTrack.AbsoluteSize.Y, 0, 1)
+			refreshAll()
+		end
+	end)
+	
 	UIS.InputEnded:Connect(function(inp)
-		if inp.UserInputType==Enum.UserInputType.MouseButton1 then svDrag=false;brDrag=false;opDrag=false end
+		if inp.UserInputType == Enum.UserInputType.MouseButton1 then 
+			svDrag = false; hueDrag = false; opDrag = false 
+		end
+	end)
+	
+	-- Hex input handler
+	hexInput.FocusLost:Connect(function(enter)
+		if enter then
+			local success, result = pcall(Color3.fromHex, hexInput.Text)
+			if success and typeof(result) == "Color3" then
+				curH, curS, curV = Color3.toHSV(result)
+				refreshAll()
+			end
+		end
+	end)
+	
+	-- RGB input handlers
+	redInput.FocusLost:Connect(function(enter)
+		if enter then
+			local r = tonumber(redInput.Text) or 0
+			local g = tonumber(greenInput.Text) or 0
+			local b = tonumber(blueInput.Text) or 0
+			if r >= 0 and r <= 255 and g >= 0 and g <= 255 and b >= 0 and b <= 255 then
+				local c = Color3.fromRGB(r, g, b)
+				curH, curS, curV = Color3.toHSV(c)
+				refreshAll()
+			end
+		end
+	end)
+	
+	greenInput.FocusLost:Connect(function(enter)
+		if enter then
+			local r = tonumber(redInput.Text) or 0
+			local g = tonumber(greenInput.Text) or 0
+			local b = tonumber(blueInput.Text) or 0
+			if r >= 0 and r <= 255 and g >= 0 and g <= 255 and b >= 0 and b <= 255 then
+				local c = Color3.fromRGB(r, g, b)
+				curH, curS, curV = Color3.toHSV(c)
+				refreshAll()
+			end
+		end
+	end)
+	
+	blueInput.FocusLost:Connect(function(enter)
+		if enter then
+			local r = tonumber(redInput.Text) or 0
+			local g = tonumber(greenInput.Text) or 0
+			local b = tonumber(blueInput.Text) or 0
+			if r >= 0 and r <= 255 and g >= 0 and g <= 255 and b >= 0 and b <= 255 then
+				local c = Color3.fromRGB(r, g, b)
+				curH, curS, curV = Color3.toHSV(c)
+				refreshAll()
+			end
+		end
 	end)
 
-	local function setColorRaw(color,opacity)
-		_,_,curV=Color3.toHSV(color); curOp=math.clamp(opacity or curOp,0,1); refreshAll()
+	local function setColorRaw(color, opacity)
+		curH, curS, curV = Color3.toHSV(color)
+		curOp = math.clamp(opacity or curOp, 0, 1)
+		refreshAll()
 	end
-	return panel,getColor,getOpacity,setColorRaw
+	
+	refreshAll()
+	return panel, getColor, getOpacity, setColorRaw
 end
 
 -- ============================================================
@@ -679,12 +819,17 @@ local function makeColumnObj(sf, registry, openDD, winOptions)
 		function obj:SetValue(v) applyValue(math.floor(v+0.5)) end
 
 		local drag=false
-		knob.MouseButton1Down:Connect(function() drag=true; tw(knob,{Size=UDim2.new(0,13,0,13),Position=UDim2.new(pct,-6,0.5,-6)},SNAP):Play() end)
+		local dragStarted=false
+		knob.MouseButton1Down:Connect(function() drag=true; dragStarted=false end)
 		UIS.InputEnded:Connect(function(inp)
-			if inp.UserInputType==Enum.UserInputType.MouseButton1 and drag then drag=false; tw(knob,{Size=UDim2.new(0,11,0,11)},SNAP):Play() end
+			if inp.UserInputType==Enum.UserInputType.MouseButton1 and drag then drag=false; dragStarted=false; tw(knob,{Size=UDim2.new(0,11,0,11)},SNAP):Play() end
 		end)
 		UIS.InputChanged:Connect(function(inp)
 			if drag and inp.UserInputType==Enum.UserInputType.MouseMovement then
+				if not dragStarted then
+					dragStarted=true
+					tw(knob,{Size=UDim2.new(0,13,0,13),Position=UDim2.new(pct,-6,0.5,-6)},SNAP):Play()
+				end
 				local p=math.clamp((inp.Position.X-track.AbsolutePosition.X)/track.AbsoluteSize.X,0,1)
 				applyValue(math.floor(minVal+(maxVal-minVal)*p+0.5))
 			end
