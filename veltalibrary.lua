@@ -206,12 +206,35 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 	svBox.BorderSizePixel = 0; svBox.ZIndex = 9
 	svBox.ClipsDescendants = true; svBox.Parent = panel; corner(svBox, 4)
 	
-	local svGrad = Instance.new("UIGradient")
-	svGrad.Color = ColorSequence.new({
+	local satOverlay = Instance.new("Frame")
+	satOverlay.Size = UDim2.fromScale(1, 1)
+	satOverlay.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	satOverlay.BorderSizePixel = 0; satOverlay.ZIndex = 10; satOverlay.Parent = svBox
+	local satGrad = Instance.new("UIGradient")
+	satGrad.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
 	})
-	svGrad.Rotation = 90; svGrad.Parent = svBox
+	satGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(1, 1)
+	})
+	satGrad.Rotation = 0; satGrad.Parent = satOverlay
+
+	local valOverlay = Instance.new("Frame")
+	valOverlay.Size = UDim2.fromScale(1, 1)
+	valOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	valOverlay.BorderSizePixel = 0; valOverlay.ZIndex = 11; valOverlay.Parent = svBox
+	local valGrad = Instance.new("UIGradient")
+	valGrad.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+	})
+	valGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(1, 0)
+	})
+	valGrad.Rotation = 90; valGrad.Parent = valOverlay
 	
 	local svCursor = Instance.new("Frame")
 	svCursor.Size = UDim2.new(0, 12, 0, 12)
@@ -286,8 +309,8 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 	hexInput.BorderSizePixel = 0; hexInput.TextSize = 11
 	hexInput.TextColor3 = C.textBright
 	hexInput.Font = FONT_REG; hexInput.ZIndex = 10; hexInput.Parent = panel; corner(hexInput, 2)
-	hexInput.PlaceholderText = "Hex"
-	hexInput.Text = Color3.fromHSV(curH, curS, curV):ToHex()
+	hexInput.PlaceholderText = "#RRGGBB"
+	hexInput.Text = "#" .. Color3.fromHSV(curH, curS, curV):ToHex()
 
 	local redInput = Instance.new("TextBox")
 	redInput.Size = UDim2.new(0, 50, 0, 20)
@@ -333,7 +356,7 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 		local r = math.floor(c.r * 255)
 		local g = math.floor(c.g * 255)
 		local b = math.floor(c.b * 255)
-		hexInput.Text = c:ToHex()
+		hexInput.Text = "#" .. c:ToHex()
 		redInput.Text = tostring(r)
 		greenInput.Text = tostring(g)
 		blueInput.Text = tostring(b)
@@ -403,13 +426,36 @@ local function buildColorPicker(parent, defColor, defOpacity, colorCb)
 	end)
 	
 	-- Hex input handler
+	local function normalizeHexInput(s)
+		local cleaned = string.upper((s or ""):gsub("%s+", ""))
+		if cleaned:sub(1, 1) ~= "#" then
+			cleaned = "#" .. cleaned
+		end
+		local body = cleaned:sub(2):gsub("[^0-9A-F]", "")
+		if #body > 6 then body = body:sub(1, 6) end
+		return "#" .. body
+	end
+
+	hexInput:GetPropertyChangedSignal("Text"):Connect(function()
+		local normalized = normalizeHexInput(hexInput.Text)
+		if hexInput.Text ~= normalized then
+			hexInput.Text = normalized
+		end
+	end)
+
 	hexInput.FocusLost:Connect(function(enter)
-		if enter then
-			local success, result = pcall(Color3.fromHex, hexInput.Text)
-			if success and typeof(result) == "Color3" then
-				curH, curS, curV = Color3.toHSV(result)
-				refreshAll()
-			end
+		if not enter then return end
+		local normalized = normalizeHexInput(hexInput.Text)
+		if #normalized ~= 7 then
+			updateInputs()
+			return
+		end
+		local success, result = pcall(Color3.fromHex, normalized:sub(2))
+		if success and typeof(result) == "Color3" then
+			curH, curS, curV = Color3.toHSV(result)
+			refreshAll()
+		else
+			updateInputs()
 		end
 	end)
 	
@@ -627,8 +673,14 @@ local function makeColumnObj(sf, registry, openDD, winOptions)
 		if doColorPicker then
 			defColor=defColor or Color3.fromRGB(200,200,200); defOpacity=defOpacity or 1.0
 			swatchBtn=Instance.new("TextButton"); swatchBtn.Size=UDim2.new(0,13,0,13); swatchBtn.Position=UDim2.new(0.44,-SWATCH_W,0,4)
-			swatchBtn.BackgroundColor3=defColor; swatchBtn.BorderSizePixel=0; swatchBtn.Text=""; swatchBtn.AutoButtonColor=false
+			swatchBtn.BackgroundColor3=defColor; swatchBtn.BackgroundTransparency=1-math.clamp(defOpacity,0,1)
+			swatchBtn.BorderSizePixel=0; swatchBtn.Text=""; swatchBtn.AutoButtonColor=false
 			swatchBtn.ZIndex=60; swatchBtn.Parent=container; corner(swatchBtn,2); swatchStroke=stroke(swatchBtn,C.borderHard,1.5,0)
+			local swatchBg=Instance.new("ImageLabel")
+			swatchBg.Size=UDim2.fromScale(1,1); swatchBg.Position=UDim2.new(0,0,0,0)
+			swatchBg.Image="http://www.roblox.com/asset/?id=14204231522"; swatchBg.ImageTransparency=0.45
+			swatchBg.ScaleType=Enum.ScaleType.Tile; swatchBg.TileSize=UDim2.fromOffset(6,6)
+			swatchBg.BackgroundTransparency=1; swatchBg.BorderSizePixel=0; swatchBg.ZIndex=59; swatchBg.Parent=swatchBtn
 		end
 
 		local btnX=(labelText~="") and 0.45 or 0; local btnW=(labelText~="") and 0.54 or 1
@@ -657,7 +709,10 @@ local function makeColumnObj(sf, registry, openDD, winOptions)
 		local cpObj
 		if doColorPicker then
 			pickerPanel,getPColor,getPOpacity,setPickerRaw=buildColorPicker(container,defColor,defOpacity,function(c,op)
-				if swatchBtn then swatchBtn.BackgroundColor3=c end
+				if swatchBtn then
+					swatchBtn.BackgroundColor3=c
+					swatchBtn.BackgroundTransparency=1-math.clamp(op or 1,0,1)
+				end
 				if cpObj then cpObj:_fire({Color=c,Opacity=op}) end
 				if colorCb then colorCb(c,op) end
 			end)
