@@ -912,8 +912,8 @@ function VeltaLib.new(config)
 	local WIN_H      = config.Height or 662
 	local BORDER     = 5
 	local TITLEBAR_H = 36
-	local SIDEBAR_OW = 168
-	local SIDEBAR_CW = 44
+	local SIDEBAR_OW = 200
+	local SIDEBAR_CW = 50
 	local WIN_MIN_W  = 700
 	local WIN_MIN_H  = 440
 	local PROFILE_H  = 66
