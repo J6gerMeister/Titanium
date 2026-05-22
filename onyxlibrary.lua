@@ -1,4 +1,4 @@
--- titaniumlibrary.lua  —  Black & White edition  (fixed + 1.25x scale)
+-- onyxlibrary.lua  —  Black & White edition  (fixed + 1.25x scale)
 -- Bugs fixed:
 --   • Checkbox/Slider/Dropdown/Keybind/PairedCheckbox: key arg is now OPTIONAL.
 --     Both col:Checkbox("label", default, cb) and col:Checkbox("key","label",default,cb) work.
@@ -1165,9 +1165,9 @@ end
 -- ============================================================
 --  PUBLIC API
 -- ============================================================
-local TitaniumLib={}
+local OnyxiteLib={}
 
-function TitaniumLib.new(config)
+function OnyxiteLib.new(config)
 	local win={}; win._tabPanels={}; win._tabButtons={}; win._activeTab=nil; win.Options={}
 	local registry={}; local openDD={fn=nil}
 
@@ -1185,7 +1185,7 @@ function TitaniumLib.new(config)
 
 	local player=Players.LocalPlayer
 	local guiParent=player:WaitForChild("PlayerGui")
-	local gui=Instance.new("ScreenGui"); gui.Name="TitaniumGUI"; gui.ResetOnSpawn=false
+	local gui=Instance.new("ScreenGui"); gui.Name="OnyxiteGUI"; gui.ResetOnSpawn=false
 	gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; gui.Parent=guiParent
 
 	-- ── outer shell ─────────────────────────────────────────
@@ -1220,7 +1220,7 @@ function TitaniumLib.new(config)
 	local sDot=Instance.new("Frame"); sDot.Size=UDim2.new(0,5,0,5); sDot.Position=UDim2.new(0,14,0.5,-2)
 	sDot.BackgroundColor3=C.accentDim; sDot.BorderSizePixel=0; sDot.ZIndex=6; sDot.Parent=titleBar; corner(sDot,3)
 
-	local tLbl=Instance.new("TextLabel"); tLbl.Text=config.Title or "Titanium"; tLbl.Font=FONT_BOLD; tLbl.TextSize=14
+	local tLbl=Instance.new("TextLabel"); tLbl.Text=config.Title or "Onyxite"; tLbl.Font=FONT_BOLD; tLbl.TextSize=14
 	tLbl.TextColor3=C.textBright; tLbl.BackgroundTransparency=1; tLbl.Size=UDim2.new(0,140,1,0); tLbl.Position=UDim2.new(0,26,0,0)
 	tLbl.TextXAlignment=Enum.TextXAlignment.Left; tLbl.ZIndex=6; tLbl.Parent=titleBar
 
@@ -1248,7 +1248,7 @@ function TitaniumLib.new(config)
 	corner(rPill,13); stroke(rPill,C.borderHard,1,0.1); gradient(rPill,Color3.fromRGB(20,20,20),Color3.fromRGB(8,8,8),180)
 	local pDot2=Instance.new("Frame"); pDot2.Size=UDim2.new(0,5,0,5); pDot2.Position=UDim2.new(0,11,0.5,-2)
 	pDot2.BackgroundColor3=C.accentDim; pDot2.BorderSizePixel=0; pDot2.ZIndex=52; pDot2.Parent=rPill; corner(pDot2,3)
-	local pLbl=Instance.new("TextLabel"); pLbl.Text=string.upper(config.Title or "TITANIUM"); pLbl.Font=FONT_BOLD; pLbl.TextSize=10
+	local pLbl=Instance.new("TextLabel"); pLbl.Text=string.upper(config.Title or "ONYXITE"); pLbl.Font=FONT_BOLD; pLbl.TextSize=10
 	pLbl.TextColor3=C.textMid; pLbl.BackgroundTransparency=1; pLbl.Size=UDim2.new(1,-24,1,0); pLbl.Position=UDim2.new(0,22,0,0)
 	pLbl.TextXAlignment=Enum.TextXAlignment.Left; pLbl.ZIndex=52; pLbl.Parent=rPill
 	rPill.MouseEnter:Connect(function() tw(rPill,{BackgroundColor3=Color3.fromRGB(22,22,22)},SNAP):Play() end)
@@ -1268,7 +1268,7 @@ function TitaniumLib.new(config)
 	do local g=Instance.new("UIGradient"); g.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.4),NumberSequenceKeypoint.new(0.5,0),NumberSequenceKeypoint.new(1,0.4)}); g.Rotation=0; g.Parent=dTop end
 	local dTitle=Instance.new("TextLabel"); dTitle.Size=UDim2.new(1,-32,0,36); dTitle.Position=UDim2.new(0,22,0,8)
 	dTitle.BackgroundTransparency=1; dTitle.Font=FONT_BOLD; dTitle.TextSize=16; dTitle.TextColor3=C.textBright; dTitle.TextTransparency=1
-	dTitle.Text="CLOSE "..(string.upper(config.Title or "TITANIUM?")); dTitle.TextXAlignment=Enum.TextXAlignment.Left; dTitle.ZIndex=93; dTitle.Parent=cDlg
+	dTitle.Text="CLOSE "..(string.upper(config.Title or "ONYXITE?")); dTitle.TextXAlignment=Enum.TextXAlignment.Left; dTitle.ZIndex=93; dTitle.Parent=cDlg
 	local dMsg=Instance.new("TextLabel"); dMsg.Size=UDim2.new(1,-32,0,44); dMsg.Position=UDim2.new(0,22,0,44)
 	dMsg.BackgroundTransparency=1; dMsg.Font=FONT_REG; dMsg.TextSize=11; dMsg.TextColor3=C.textSub; dMsg.TextTransparency=1; dMsg.TextWrapped=true
 	dMsg.Text="Are you sure you want to close the menu?\nRe-execute the script to reopen it."; dMsg.TextXAlignment=Enum.TextXAlignment.Left; dMsg.ZIndex=93; dMsg.Parent=cDlg
@@ -1357,7 +1357,7 @@ function TitaniumLib.new(config)
 	gradientN(sLA,{{0,Color3.fromRGB(20,20,20)},{1,Color3.fromRGB(6,6,6)}},180)
 	local sLD=Instance.new("Frame"); sLD.Size=UDim2.new(0,5,0,5); sLD.Position=UDim2.new(0,12,0.5,-2)
 	sLD.BackgroundColor3=C.accentDim; sLD.BorderSizePixel=0; sLD.ZIndex=6; sLD.Parent=sLA; corner(sLD,3)
-	local sLT=Instance.new("TextLabel"); sLT.Text=config.Creator or "Titanium"; sLT.Font=FONT_SCI; sLT.TextSize=11
+	local sLT=Instance.new("TextLabel"); sLT.Text=config.Creator or "Onyxite"; sLT.Font=FONT_SCI; sLT.TextSize=11
 	sLT.TextColor3=C.textMid; sLT.BackgroundTransparency=1; sLT.Size=UDim2.new(1,-24,1,0); sLT.Position=UDim2.new(0,22,0,0)
 	sLT.TextXAlignment=Enum.TextXAlignment.Left; sLT.ZIndex=6; sLT.Parent=sLA
 	local sLDiv=Instance.new("Frame"); sLDiv.Size=UDim2.new(1,0,0,1); sLDiv.Position=UDim2.new(0,0,1,-1); sLDiv.BackgroundColor3=C.borderFaint; sLDiv.BorderSizePixel=0; sLDiv.ZIndex=6; sLDiv.Parent=sLA
@@ -1502,4 +1502,4 @@ function TitaniumLib.new(config)
 	return win
 end
 
-return TitaniumLib
+return OnyxiteLib
