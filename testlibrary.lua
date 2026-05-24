@@ -69,7 +69,15 @@ local C = {
 }
 
 -- ============================================================
-@@ -81,2835 +63,1574 @@ local MED    = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.
+--  TWEEN PRESETS
+-- ============================================================
+local FONT_REG  = Enum.Font.Code
+local FONT_BOLD = Enum.Font.Code
+local FONT_SCI  = Enum.Font.SciFi
+
+local SNAP   = TweenInfo.new(0.08, Enum.EasingStyle.Quad,  Enum.EasingDirection.Out)
+local FAST   = TweenInfo.new(0.15, Enum.EasingStyle.Quad,  Enum.EasingDirection.Out)
+local MED    = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 local SLOW   = TweenInfo.new(0.40, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 local SPRING = TweenInfo.new(0.30, Enum.EasingStyle.Back,  Enum.EasingDirection.Out)
 
@@ -906,10 +914,6 @@ local function newElementObj(defaultValue, callback)
     end
     function obj:SetValue(v) self:_fire(v) end
     return obj
-
-
-
-
 end
 
 -- ============================================================
@@ -1977,7 +1981,8 @@ local function makeColumnObj(sf, registry, openDD, winOptions, mouse)
                 end
             end)
         end
-function obj:SetValue(v)
+
+        function obj:SetValue(v)
             if isMulti then
                 local nt = {}
                 for val in next, (type(v)=="table" and v or {}) do
