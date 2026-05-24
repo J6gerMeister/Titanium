@@ -1364,17 +1364,35 @@ local function makeColumnObj(sf, registry, openDD, winOptions, mouse)
     -- ── Keybind / KeyPicker ──
     function col:Keybind(a1,a2,a3,a4,a5)
         local key, labelText, defaultKey, modes, callback
-        if type(a1)=="string" and type(a2)=="string" then
+
+        -- Support both table-style and positional args.
+        if type(a1) == "table" then
+            key = a1.flag or a1.key
+            labelText = a1.name or a1.text or "Keybind"
+            defaultKey = a1.default or a1.value
+            modes = a1.modes or a1.mode
+            callback = a1.callback
+        elseif type(a1)=="string" and type(a2)=="string" then
             key,labelText,defaultKey,modes,callback = a1,a2,a3,a4,a5
         else
             key,labelText,defaultKey,modes,callback = nil,a1,a2,a3,a4
         end
         if type(modes)=="function" then callback=modes; modes=nil end
 
+        local availModes
+        if type(modes) == "table" then
+            availModes = modes
+        elseif type(modes) == "string" and modes ~= "" then
+            availModes = { modes }
+        else
+            availModes = {"Always","Toggle","Hold"}
+        end
+        if #availModes == 0 then
+            availModes = {"Always","Toggle","Hold"}
+        end
+
         local posY = self._y
         local row = makeRow(posY, 22)
-
-        local availModes = modes or {"Always","Toggle","Hold"}
         local obj = {
             Value   = defaultKey or "None",
             Toggled = false,
@@ -1396,7 +1414,7 @@ local function makeColumnObj(sf, registry, openDD, winOptions, mouse)
         local kBtn = Instance.new("TextButton")
         kBtn.Size = UDim2.new(0.4,0,0.72,0); kBtn.Position = UDim2.new(0.57,0,0.14,0)
         kBtn.BackgroundColor3 = C.bgRaised; kBtn.BorderSizePixel = 0
-        kBtn.Text = obj.Value; kBtn.Font = FONT_BOLD; kBtn.TextSize = 10
+        kBtn.Text = tostring(obj.Value); kBtn.Font = FONT_BOLD; kBtn.TextSize = 10
         kBtn.TextColor3 = C.textMid; kBtn.AutoButtonColor = false; kBtn.ZIndex = 4; kBtn.Parent = row; corner(kBtn,2)
         local kS = stroke(kBtn, C.borderHard, 1, 0.1)
 
