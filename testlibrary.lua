@@ -1363,26 +1363,28 @@ do
 					selected = dropdown.Value == value
 				end
 
-				local function updateButton()
-					if info.Multi then
-						selected = dropdown.Value[value]
-					else
-						selected = dropdown.Value == value
-					end
-					if selected then
-						buttonLabel.TextColor3 = C.accentMid
-						RegistryMap[buttonLabel].Properties.TextColor3 = "accentMid"
-					else
-						buttonLabel.TextColor3 = C.textBright
-						RegistryMap[buttonLabel].Properties.TextColor3 = "textBright"
-					end
-				end
+			addToRegistry(buttonLabel, { TextColor3 = "textBright" })
 
-				button.InputBegan:Connect(function(inp)
-					if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-						local try = not selected
-						if dropdown:GetActiveValues() == 1 and not try and not info.AllowNull then
-							-- Do nothing
+			local function updateButton()
+				if info.Multi then
+					selected = dropdown.Value[value]
+				else
+					selected = dropdown.Value == value
+				end
+				if selected then
+					buttonLabel.TextColor3 = C.accentMid
+					RegistryMap[buttonLabel].Properties.TextColor3 = "accentMid"
+				else
+					buttonLabel.TextColor3 = C.textBright
+					RegistryMap[buttonLabel].Properties.TextColor3 = "textBright"
+				end
+			end
+
+			button.InputBegan:Connect(function(inp)
+				if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+					local try = not selected
+					if dropdown:GetActiveValues() == 1 and not try and not info.AllowNull then
+						-- Do nothing
 						else
 							if info.Multi then
 								selected = try
